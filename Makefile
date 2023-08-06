@@ -20,17 +20,19 @@ ifdef SDCC_PATH
 CC = $(SDCC_PATH)/sdcc
 SZ = $(SDCC_PATH)/size
 PP = $(SDCC_PATH)/sdcpp
+CP = $(SDCC_PATH)/sdobjcopy
 else
 CC = sdcc
 SZ = size
 PP = sdcpp
+CP = sdobjcopy
 endif
 
 
 objects = $(addprefix $(BUILD_DIR)/, $(notdir $(C_SOURCES:.c=.rel)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
-$(TARGET): $(objects) Makefile | $(BUILD_DIR)
+$(BUILD_DIR)/$(TARGET).elf: $(objects) Makefile | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$(TARGET).elf $(objects)
 	$(SZ) $(BUILD_DIR)/$(TARGET).elf
 
@@ -40,6 +42,9 @@ $(BUILD_DIR)/%.rel: %.c Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.d: %.c Makefile | $(BUILD_DIR)
 	$(PP) -MM -MP -MT "$(@:.d=.rel) $@" -MF $@ $< 
 
+$(BUILD_DIR)/$(TARGET).ihx: $(BUILD_DIR)/$(TARGET).elf
+	$(CP) -O ihex $< $@
+
 $(BUILD_DIR):
 	mkdir $@
 
@@ -47,7 +52,13 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)
 
+.PHONY: flash
+flash: $(BUILD_DIR)/$(TARGET).ihx
+	stm8flash -c stlinkv2 -p stm8l101f2 -s flash -w $(BUILD_DIR)/$(TARGET).ihx
+
 .PHONY: debug
+debug: $(BUILD_DIR)/$(TARGET).elf
 	openocd -f stlink.cfg -f stm32l1.cfg -c "init" -c "reset halt" & stm8-gdb  $(BUILD_DIR)/$(TARGET).elf --tui
+
 
 include $(objects:.rel=.d)
