@@ -1,4 +1,4 @@
-﻿$stlinklist = usbipd wsl list | Select-String -Pattern "CH34"
-$busid = [regex]::Matches($stlinklist, "\d+-\d+").Value
+﻿$list = usbipd wsl list | Select-String -Pattern "ST-Link"
+$busid = [regex]::Matches($list, "\d+-\d+").Value
 usbipd wsl attach --busid $busid
 echo "Attached device with bus-id: " $busid

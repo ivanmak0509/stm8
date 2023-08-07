@@ -1,5 +1,7 @@
 # stm8
+
 Template to compile any STM8 without any peripheral libraries
+
 
 ## How to use
 
@@ -9,6 +11,7 @@ To compile, run `make`, to flash `make flash` and to open a debugging session `m
 If changing target keep in mind you must also change the target in the `flash` and `debug` commands in the makefile.
 
 Flashing and debugging will be tested soon
+
 
 ## Devloping in WSL
 
