@@ -7,7 +7,7 @@ INCLUDES = -Isrc
 # no trailing slash
 BUILD_DIR = build
 
-# opt-code-speed is also possible if preferred
+# --opt-code-speed is also possible if preferred
 CFLAGS = -mstm8 --stack-auto --out-fmt-elf --opt-code-size
 CFLAGS += $(INCLUDES)
 

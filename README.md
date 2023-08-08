@@ -13,7 +13,7 @@ If changing target keep in mind you must also change the target in the `flash` a
 Flashing and debugging will be tested soon
 
 
-## Devloping in WSL
+## Developing in WSL
 
 You can attach your st-link to WSL using the `attach.sh` script. You might have to run it 
 first through an elevated powershell (depends on your elevation when you invoked `wsl`).
