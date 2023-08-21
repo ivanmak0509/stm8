@@ -58,7 +58,7 @@ flash: $(BUILD_DIR)/$(TARGET).ihx
 
 .PHONY: debug
 debug: $(BUILD_DIR)/$(TARGET).elf
-	openocd -f stlink.cfg -f stm32l1.cfg -c "init" -c "reset halt" & stm8-gdb  $(BUILD_DIR)/$(TARGET).elf --tui
+	openocd -f openocd.cfg -c "init" -c "reset halt" & stm8-gdb  $(BUILD_DIR)/$(TARGET).elf --tui
 
 
 include $(objects:.rel=.d)
