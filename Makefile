@@ -2,14 +2,20 @@ TARGET = stm8
 DEBUG = 1
 
 C_SOURCES = $(wildcard src/*.c)
-INCLUDES = -Isrc
+INCLUDES = \
+-Isrc \
+-I/usr/share/sdcc/include
 
-# no trailing slash
 BUILD_DIR = build
 
+# --opt-code-size
 # --opt-code-speed is also possible if preferred
-CFLAGS = -mstm8 --stack-auto --out-fmt-elf --opt-code-size
+MCU = -mstm8 --stack-auto --out-fmt-elf 
+
+CFLAGS =  $(MCU)
 CFLAGS += $(INCLUDES)
+
+LDFLAGS = $(MCU)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += --debug
@@ -33,17 +39,14 @@ objects = $(addprefix $(BUILD_DIR)/, $(notdir $(C_SOURCES:.c=.rel)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
 $(BUILD_DIR)/$(TARGET).elf: $(objects) Makefile | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$(TARGET).elf $(objects)
+	$(CC) $(LDFLAGS) -o $(BUILD_DIR)/$(TARGET).elf $(objects)
 	$(SZ) $(BUILD_DIR)/$(TARGET).elf
 
 $(BUILD_DIR)/%.rel: %.c Makefile | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.d: %.c Makefile | $(BUILD_DIR)
-	$(PP) -MM -MP -MT "$(@:.d=.rel) $@" -MF $@ $< 
-
-$(BUILD_DIR)/$(TARGET).ihx: $(BUILD_DIR)/$(TARGET).elf
-	$(CP) -O ihex $< $@
+	$(PP) $(INCLUDES) -MM -MP -MT "$(@:.d=.rel) $@" -MF $@ $< 
 
 $(BUILD_DIR):
 	mkdir $@
@@ -52,13 +55,23 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: flash
-flash: $(BUILD_DIR)/$(TARGET).ihx
-	stm8flash -c stlinkv2 -p stm8l101f2 -s flash -w $(BUILD_DIR)/$(TARGET).ihx
+# .PHONY: unlock
+# unlock:
+# 	stm8flash -c stlinkv2 -p stm8l101f2 -u
+
+# .PHONY: flash
+# flash: $(BUILD_DIR)/$(TARGET).ihx
+# 	stm8flash -c stlinkv2 -p stm8l101f2 -s flash -w $(BUILD_DIR)/$(TARGET).ihx
+
+# .PHONY: flash
+# flash: $(BUILD_DIR)/$(TARGET).elf
+# 	openocd -f openocd.cfg -c "load $(BUILD_DIR)/$(TARGET).elf" -c ""
+
+# only way to flash is opening gdb and typing load
 
 .PHONY: debug
 debug: $(BUILD_DIR)/$(TARGET).elf
-	openocd -f openocd.cfg -c "init" -c "reset halt" & stm8-gdb  $(BUILD_DIR)/$(TARGET).elf --tui
+	openocd -f openocd.cfg
 
 
 include $(objects:.rel=.d)
