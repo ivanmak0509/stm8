@@ -28,12 +28,12 @@ endif
 
 ifdef SDCC_PATH
 CC = $(SDCC_PATH)/sdcc
-SZ = $(SDCC_PATH)/size
+SZ = $(SDCC_PATH)/arm-none-eabi-size # <- original size doesnt work on sdcc .ihx for some reason
 PP = $(SDCC_PATH)/sdcpp
 CP = $(SDCC_PATH)/sdobjcopy
 else
 CC = sdcc
-SZ = size
+SZ = arm-none-eabi-size # <- original size doesnt work on sdcc .ihx for some reason
 PP = sdcpp
 CP = sdobjcopy
 endif
