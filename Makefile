@@ -1,10 +1,17 @@
 TARGET = stm8
 DEBUG = 1
 
+OS := $(shell uname)
+
 C_SOURCES = $(wildcard src/*.c)
 INCLUDES = \
--Isrc \
--I/usr/share/sdcc/include
+-Isrc
+
+ifeq ($(OS),Darwin)
+INCLUDES += -I/opt/homebrew/share/sdcc/include
+else
+INCLUDES += -I/usr/share/sdcc/include
+endif
 
 BUILD_DIR = build
 
